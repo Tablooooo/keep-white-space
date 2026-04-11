@@ -1,0 +1,26 @@
+name: CI Keep White Space
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Security Audit (npm audit)
+        run: npm audit --audit-level=moderate
+
+      - name: Linting (Google Style Guide)
+        run: npx eslint .
+
+      - name: Run Tests with Annotations
+        run: npx vitest run --reporter=verbose --reporter=github-actions

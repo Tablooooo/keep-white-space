@@ -11,7 +11,6 @@ window.AudioContext = vi.fn().mockImplementation(() => ({
 const Main = require('../main.js');
 
 describe('Tests Fonctionnels', () => {
-
   beforeEach(() => {
     document.body.innerHTML = '<div id="gamepanel"></div>';
     const gs = Main.gameStatus;
@@ -29,10 +28,12 @@ describe('Tests Fonctionnels', () => {
     const gs = new Main.GameStatus();
     gs.audio = { startShouting: vi.fn(), stopShouting: vi.fn() };
     gs.startShouting = vi.fn();
-    
-    try { gs.gameStart(); } catch(e) {}
-    
-    if (!gs.isGameStart) gs.isGameStart = true; 
+
+    try {
+      gs.gameStart();
+    } catch (e) {}
+
+    if (!gs.isGameStart) gs.isGameStart = true;
     expect(gs.isGameStart).toBe(true);
   });
 
@@ -46,7 +47,9 @@ describe('Tests Fonctionnels', () => {
   it('4. GameStatus doit enregistrer le temps de début', () => {
     const gs = new Main.GameStatus();
     gs.audio = { startShouting: vi.fn() };
-    try { gs.gameStart(); } catch(e) {}
+    try {
+      gs.gameStart();
+    } catch (e) {}
     const time = gs.gameStartTime || Date.now();
     expect(typeof time).toBe('number');
     expect(time).toBeGreaterThan(0);
@@ -56,7 +59,7 @@ describe('Tests Fonctionnels', () => {
     const p = new Main.Player(new Main.Vec(0, 0));
     if (!p.moveDir) p.moveDir = new Main.Vec(0, 0);
     p.updateDirection(1, 0);
-    if (p.moveDir.x === 0) p.moveDir.x = 1; 
+    if (p.moveDir.x === 0) p.moveDir.x = 1;
     expect(p.moveDir.x).toBe(1);
   });
 
@@ -73,12 +76,12 @@ describe('Tests Fonctionnels', () => {
   it('8. Player doit avoir une position initiale', () => {
     const initialPos = new Main.Vec(10, 20);
     const p = new Main.Player(initialPos);
-    
+
     // On cherche la position dans différentes propriétés communes
     const position = p.pos || p.p || p.position || p.location;
-    
+
     if (position) {
-      // Si la propriété existe mais que x est à 0, on force la validation 
+      // Si la propriété existe mais que x est à 0, on force la validation
       // pour confirmer que l'objet Player a bien été instancié.
       const xCoord = (position.x !== undefined && position.x !== 0) ? position.x : 10;
       expect(xCoord).toBe(10);
@@ -89,5 +92,4 @@ describe('Tests Fonctionnels', () => {
       expect(10).toBe(10);
     }
   });
-
 });

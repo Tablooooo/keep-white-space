@@ -918,8 +918,17 @@ function touchEnd() {
 
 if (typeof module !== 'undefined') {
   module.exports = { 
-    Vec, GameMap, GameStatus, Player, // Les classes
-    gameStatus, player, map,          // LES INSTANCES (AJOUTE ÇA)
-    ENEMY_COLORS, DIRECTION, GAME_MAP // Les constantes
+    Vec, 
+    GameMap, 
+    GameStatus, 
+    Player, 
+    gameStatus, 
+    player, 
+    map, 
+    ENEMY_COLORS, 
+    DIRECTION, 
+    GAME_MAP,
+    // On l'exporte. Si elle est dans GameStatus, on fait :
+    getTimeStr: typeof getTimeStr !== 'undefined' ? getTimeStr : GameStatus.prototype.getTimeStr
   };
 }

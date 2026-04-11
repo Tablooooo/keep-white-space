@@ -917,5 +917,9 @@ function touchEnd() {
 
 
 if (typeof module !== 'undefined') {
-  module.exports = { Vec, gameStatus, GameMap };
+  module.exports = { 
+    Vec, GameMap, GameStatus, Player, // Les classes
+    gameStatus, player, map,          // LES INSTANCES (AJOUTE ÇA)
+    ENEMY_COLORS, DIRECTION, GAME_MAP // Les constantes
+  };
 }

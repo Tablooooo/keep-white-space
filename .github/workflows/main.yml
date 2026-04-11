@@ -1,6 +1,13 @@
 name: CI Keep White Space
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - '**'          # S'active sur un push sur n'importe quelle branche
+  pull_request:
+    branches:
+      - main          # S'active sur une PR visant la branche principale
+  workflow_dispatch:  # Permet le lancement manuel
 
 jobs:
   build-and-test:
@@ -14,13 +21,13 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Security Audit (npm audit)
         run: npm audit --audit-level=moderate
 
       - name: Linting (Google Style Guide)
-        run: npx eslint .
+        run: npm run lint
 
       - name: Run Tests with Annotations
-        run: npx vitest run --reporter=verbose --reporter=github-actions
+        run: npm test

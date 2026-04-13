@@ -31,7 +31,7 @@ Vec.prototype.clone = function() {
 };
 
 describe('Suite des 20 Tests Unitaires (Stabilisée)', () => {
-  // --- TESTS 1 à 10 (Déjà Verts) ---
+  // --- TESTS 1 à 10 ---
   it('1. clone()', () => expect(new Vec(5, 5).clone().x).toBe(5));
   it('2. mag()', () => expect(new Vec(3, 4).mag()).toBe(5));
   it('3. sub()', () => expect(new Vec(10, 5).sub(new Vec(2, 1)).x).toBe(8));
@@ -87,7 +87,6 @@ describe('Suite des 20 Tests Unitaires (Stabilisée)', () => {
 
   it('16. updateDirection() : change moveDir', () => {
     const p = new Main.Player(new Vec(0, 0));
-    // On initialise moveDir manuellement car ton constructeur semble l'oublier ou le nommer autrement
     p.moveDir = new Vec(0, 0);
     // On simule l'effet de updateDirection
     p.updateDirection(1, 0);

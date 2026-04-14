@@ -36,10 +36,12 @@ jobs:
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
-      # Connexion au registre de GitHub
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -47,11 +49,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build et Push sur GitHub
+      # Cette étape transforme le pseudo en minuscules pour Docker
+      - name: Lowercase repo holder
+        run: |
+          echo "REPO_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          # L'image sera stockée dans les "Packages" GitHub
-          tags: ghcr.io/${{ github.repository_owner }}/keep-white-space:latest
+          # On utilise ici la variable REPO_OWNER qui est maintenant en minuscules
+          tags: ghcr.io/${{ env.REPO_OWNER }}/keep-white-space:latest

@@ -3,11 +3,11 @@ name: CI Keep White Space
 on:
   push:
     branches:
-      - '**'          # S'active sur un push sur n'importe quelle branche
+      - '**'
   pull_request:
     branches:
-      - main          # S'active sur une PR visant la branche principale
-  workflow_dispatch:  # Permet le lancement manuel
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +16,20 @@ permissions:
   id-token: write
 
 jobs:
+  # Étape DevSecOps ajoutée Détection de secrets
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important pour que Gitleaks puisse scanner l'historique
+      - name: Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-and-test:
+    needs: secrets-scan # On ne teste que si aucun secret n'est exposé
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

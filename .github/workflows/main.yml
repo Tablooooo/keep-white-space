@@ -9,6 +9,12 @@ on:
       - main          # S'active sur une PR visant la branche principale
   workflow_dispatch:  # Permet le lancement manuel
 
+permissions:
+  contents: read
+  packages: write
+  pages: write
+  id-token: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -32,13 +38,10 @@ jobs:
       - name: Run Tests with Annotations
         run: npm test
 
-  deploy:
+  deploy-docker:
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +52,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Cette étape transforme le pseudo en minuscules pour Docker
       - name: Lowercase repo holder
         run: |
           echo "REPO_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
@@ -59,5 +61,26 @@ jobs:
         with:
           context: .
           push: true
-          # On utilise ici la variable REPO_OWNER qui est maintenant en minuscules
           tags: ghcr.io/${{ env.REPO_OWNER }}/keep-white-space:latest
+
+  publish-pages:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # Dossier contenant l'index.html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

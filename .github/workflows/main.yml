@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -49,14 +49,34 @@ jobs:
 
       - name: Run Tests with Summary and Annotations
         id: run_tests
-        # On utilise une redirection pour capturer la sortie et créer le résumé
         run: |
+          # Exécution des tests et capture du résultat
           npm test > test_output.txt 2>&1 || echo "TEST_FAILED=true" >> $GITHUB_ENV
+          
+          # Affichage dans la console pour le debug
           cat test_output.txt
-          echo "### 📊 Résumé des résultats de tests" >> $GITHUB_STEP_SUMMARY
+          
+          # Construction du résumé visuel (Job Summary)
+          echo "## 🧪 Rapport de Validation Qualité" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$TEST_FAILED" == "true" ]; then
+            echo "### ❌ Statut : ÉCHEC" >> $GITHUB_STEP_SUMMARY
+            echo "> ⚠️ Certains tests n'ont pas été validés. Veuillez vérifier les logs ci-dessous." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Statut : SUCCÈS" >> $GITHUB_STEP_SUMMARY
+            echo "> ✨ Tous les tests unitaires et fonctionnels ont été validés avec succès." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "#### 📝 Détails de l'exécution" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
-          tail -n 20 test_output.txt >> $GITHUB_STEP_SUMMARY
+          # On récupère les lignes de conclusion (le décompte des 38 tests)
+          tail -n 10 test_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "_Généré automatiquement par le pipeline CI/CD - $(date +'%d/%m/%Y %H:%M')_" >> $GITHUB_STEP_SUMMARY
+
+          # Faire échouer le job si les tests ont échoué
           if [ "$TEST_FAILED" == "true" ]; then exit 1; fi
 
   deploy-docker:

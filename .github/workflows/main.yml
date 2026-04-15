@@ -16,7 +16,6 @@ permissions:
   id-token: write
 
 jobs:
-  # Étape DevSecOps ajoutée Détection de secrets
   secrets-scan:
     runs-on: ubuntu-latest
     steps:
@@ -37,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -48,8 +47,17 @@ jobs:
       - name: Linting (Google Style Guide)
         run: npm run lint
 
-      - name: Run Tests with Annotations
-        run: npm test
+      - name: Run Tests with Summary and Annotations
+        id: run_tests
+        # On utilise une redirection pour capturer la sortie et créer le résumé
+        run: |
+          npm test > test_output.txt 2>&1 || echo "TEST_FAILED=true" >> $GITHUB_ENV
+          cat test_output.txt
+          echo "### 📊 Résumé des résultats de tests" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          tail -n 20 test_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          if [ "$TEST_FAILED" == "true" ]; then exit 1; fi
 
   deploy-docker:
     needs: build-and-test
